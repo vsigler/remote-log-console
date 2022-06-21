@@ -1,0 +1,43 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>cz.sigler.remotelog</id>
+    <name>Remote Log Console</name>
+    <vendor>Vojtech Sigler</vendor>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Remote Log" secondary="true" icon="AllIcons.Debugger.Console" anchor="bottom"
+                    factoryClass="cz.sigler.remotelog.toolwindow.ToolWindowFactory" />
+
+        <projectConfigurable
+                instance="cz.sigler.remotelog.config.RemoteLogConfigurable"
+                id="RemoteLogConsole"
+                displayName="Remote Log Console"
+                nonDefaultProject="true"/>
+    </extensions>
+
+    <actions>
+        <group id="toolbar.console" text="Grep Panel">
+            <action id="toolbar.select"
+                    class="cz.sigler.remotelog.actions.SelectSourceAction"
+                    />
+
+            <action id="start.console"
+                    class="cz.sigler.remotelog.actions.StartAction"
+                    icon="AllIcons.Actions.Execute"
+                    text="Start"
+            />
+            <action id="restart.console"
+                    class="cz.sigler.remotelog.actions.RestartAction"
+                    icon="AllIcons.Actions.Restart"
+                    text="Restart"
+            />
+            <action id="stop.console"
+                    class="cz.sigler.remotelog.actions.StopAction"
+                    icon="AllIcons.Actions.Suspend"
+                    text="Stop"
+            />
+        </group>
+    </actions>
+</idea-plugin>
