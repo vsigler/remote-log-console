@@ -8,7 +8,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Remote Log" secondary="true" icon="AllIcons.Debugger.Console" anchor="bottom"
-                    factoryClass="cz.sigler.remotelog.toolwindow.ToolWindowFactory" />
+                    factoryClass="cz.sigler.remotelog.toolwindow.ToolWindowFactory"
+                    canCloseContents="true" />
 
         <projectConfigurable
                 instance="cz.sigler.remotelog.config.RemoteLogConfigurable"
