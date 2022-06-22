@@ -8,6 +8,7 @@ import com.intellij.openapi.actionSystem.ex.ComboBoxAction
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.DumbAwareAction
+import cz.sigler.remotelog.MyBundle
 import cz.sigler.remotelog.config.RemoteLogConfigurable
 import cz.sigler.remotelog.config.SettingsService
 import javax.swing.JComponent
@@ -29,7 +30,7 @@ class SelectSourceAction : DumbAware, ComboBoxAction() {
         }
 
         group.addSeparator()
-        group.add(object: DumbAwareAction("Edit Log Sources...") {
+        group.add(object: DumbAwareAction(MyBundle.message("editLogSources")) {
             override fun actionPerformed(e: AnActionEvent) {
                 val configurable = RemoteLogConfigurable(project)
                 ShowSettingsUtil.getInstance().editConfigurable(project, configurable)

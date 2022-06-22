@@ -12,12 +12,14 @@ import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl
 import com.intellij.openapi.editor.actions.ScrollToTheEndToolbarAction
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
 import com.intellij.util.ui.JBEmptyBorder
+import cz.sigler.remotelog.services.LogProjectService
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
 
-class ToolWindow(val project: Project) : Disposable {
+class ToolWindow(val project: Project, val logSourceId: String) : Disposable {
     lateinit var content: JPanel
     private lateinit var toolbar: JPanel
     private lateinit var console: JPanel
@@ -42,11 +44,13 @@ class ToolWindow(val project: Project) : Disposable {
 
         toolbar.add(editorToolbar.component, BorderLayout.CENTER)
         console.add(consoleView.component, BorderLayout.CENTER)
+        Disposer.register(this, consoleView)
     }
 
     override fun dispose() {
+        val service = project.getService(LogProjectService::class.java)
+        service.stop()
         console.removeAll()
-        consoleView.dispose()
     }
 
     private fun createConsoleActions(console: ConsoleView) : List<AnAction> {
