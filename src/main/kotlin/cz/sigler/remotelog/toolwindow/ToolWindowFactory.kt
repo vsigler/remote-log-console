@@ -15,7 +15,7 @@ import com.intellij.ui.content.ContentManagerEvent
 import com.intellij.ui.content.ContentManagerListener
 import cz.sigler.remotelog.actions.SelectSourceAction
 import cz.sigler.remotelog.config.SettingsService
-import cz.sigler.remotelog.services.LogProjectService
+import cz.sigler.remotelog.services.LogService
 
 class ToolWindowFactory : ToolWindowFactory, DumbAware {
     /**
@@ -25,7 +25,7 @@ class ToolWindowFactory : ToolWindowFactory, DumbAware {
      * @param toolWindow current tool window
      */
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        val service = project.getService(LogProjectService::class.java)
+        val service = project.getService(LogService::class.java)
 
         val settingsService = project.getService(SettingsService::class.java)
         val toolWindowEx = toolWindow as ToolWindowEx

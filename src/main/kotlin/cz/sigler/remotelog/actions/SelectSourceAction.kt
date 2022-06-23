@@ -8,12 +8,13 @@ import com.intellij.openapi.actionSystem.ex.ComboBoxAction
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.DumbAwareAction
+import com.intellij.ui.content.ContentManager
 import cz.sigler.remotelog.MyBundle
 import cz.sigler.remotelog.config.RemoteLogConfigurable
 import cz.sigler.remotelog.config.SettingsService
 import javax.swing.JComponent
 
-class SelectSourceAction : DumbAware, ComboBoxAction() {
+class SelectSourceAction(contentManager: ContentManager) : DumbAware, ComboBoxAction() {
 
     override fun createPopupActionGroup(button: JComponent, context: DataContext): DefaultActionGroup {
         val group = createPopupActionGroup(button)

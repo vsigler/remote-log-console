@@ -14,7 +14,7 @@ import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.ui.JBEmptyBorder
-import cz.sigler.remotelog.services.LogProjectService
+import cz.sigler.remotelog.services.LogService
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
@@ -48,7 +48,7 @@ class ToolWindow(val project: Project, val logSourceId: String) : Disposable {
     }
 
     override fun dispose() {
-        val service = project.getService(LogProjectService::class.java)
+        val service = project.getService(LogService::class.java)
         service.stop()
         console.removeAll()
     }
