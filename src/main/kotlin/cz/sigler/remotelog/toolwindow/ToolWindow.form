@@ -8,7 +8,7 @@
     <border type="none"/>
     <children>
       <grid id="8287c" binding="toolbar" layout-manager="BorderLayout" hgap="0" vgap="0">
-        <constraints border-constraint="North"/>
+        <constraints border-constraint="West"/>
         <properties/>
         <border type="none"/>
         <children/>

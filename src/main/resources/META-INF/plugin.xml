@@ -20,10 +20,6 @@
 
     <actions>
         <group id="toolbar.console" text="Grep Panel">
-            <action id="toolbar.select"
-                    class="cz.sigler.remotelog.actions.SelectSourceAction"
-                    />
-
             <action id="start.console"
                     class="cz.sigler.remotelog.actions.StartAction"
                     icon="AllIcons.Actions.Execute"

@@ -1,7 +1,6 @@
 package cz.sigler.remotelog.toolwindow
 
 import com.intellij.execution.actions.ClearConsoleAction
-import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionManager
@@ -23,7 +22,7 @@ class ToolWindow(val project: Project, val logSourceId: String) : Disposable {
     lateinit var content: JPanel
     private lateinit var toolbar: JPanel
     private lateinit var console: JPanel
-    var consoleView: ConsoleView = TextConsoleBuilderFactory.getInstance().createBuilder(project).console
+    var consoleView: ConsoleView = LogConsoleViewImpl(project, logSourceId)
 
     init {
         val actionManager = ActionManager.getInstance()
@@ -34,7 +33,7 @@ class ToolWindow(val project: Project, val logSourceId: String) : Disposable {
 
         newGroup.addAll(createConsoleActions(consoleView))
 
-        val actionToolbar = actionManager.createActionToolbar("ConsolePanel", newGroup, true)
+        val actionToolbar = actionManager.createActionToolbar("ConsolePanel", newGroup, false)
         val editorToolbar = actionToolbar as ActionToolbarImpl
         editorToolbar.setReservePlaceAutoPopupIcon(false)
         editorToolbar.isOpaque = false
@@ -49,7 +48,7 @@ class ToolWindow(val project: Project, val logSourceId: String) : Disposable {
 
     override fun dispose() {
         val service = project.getService(LogService::class.java)
-        service.stop()
+        service.stop(logSourceId)
         console.removeAll()
     }
 
