@@ -1,8 +1,8 @@
 # Remote log console
 
 ![Build](https://github.com/vsigler/remote-log-console/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
+[![Version](https://img.shields.io/jetbrains/plugin/v/19431.svg)](https://plugins.jetbrains.com/plugin/19431)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/19431)](https://plugins.jetbrains.com/plugin/19431)
 
 <!-- Plugin description -->
 Simple plugin that adds a tool window with a console that can be connected to any simple logging service that provides
