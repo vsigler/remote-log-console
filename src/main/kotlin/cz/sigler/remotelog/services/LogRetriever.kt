@@ -12,14 +12,14 @@ import java.util.function.BiConsumer
 
 private const val BUF_SIZE = 1024
 
-class RemoteLogRetriever(
+class LogRetriever(
     private val address: InetSocketAddress,
     private val reconnectAttempts: Int,
     private val consumer: BiConsumer<String, ConsoleViewContentType>
     ) : Runnable {
 
     companion object {
-        val log = Logger.getInstance(RemoteLogRetriever::class.java)
+        val log = Logger.getInstance(LogRetriever::class.java)
     }
 
     private val buffer = ByteArray(BUF_SIZE)
@@ -35,18 +35,20 @@ class RemoteLogRetriever(
             return
         }
 
-        do {
+        while (shouldRun()) {
             runInternal()
-            if (reconnectCounter < reconnectAttempts) {
+            if (shouldRun()) {
                 consumer.accept("Reconnecting... Attempt ${reconnectCounter + 1} of $reconnectAttempts after 10 seconds...\n", ConsoleViewContentType.SYSTEM_OUTPUT)
                 stopLatch.await(10, TimeUnit.SECONDS)
                 reconnectCounter++
             }
-        } while (reconnectCounter < reconnectAttempts && stopLatch.count > 0)
+        }
 
         socket = null
         log.info("Remote log receiver terminated.")
     }
+
+    private fun shouldRun() = reconnectCounter < reconnectAttempts && stopLatch.count > 0
 
     private fun runInternal() {
         try {

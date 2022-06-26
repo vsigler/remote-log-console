@@ -4,16 +4,12 @@ import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import javax.swing.JComponent
 
-class RemoteLogConfigurable(private val project: Project): Configurable {
+class RemoteLogConfigurable(project: Project): Configurable {
 
     private val settingsService = project.getService(SettingsService::class.java)
 
     private val initialList : List<LogSource> = settingsService.state.sources
     lateinit var form : LogSourcesForm
-
-    init {
-        print("asdas")
-    }
 
     override fun createComponent(): JComponent? {
         form = LogSourcesForm(initialList)
@@ -26,11 +22,13 @@ class RemoteLogConfigurable(private val project: Project): Configurable {
     }
 
     override fun apply() {
-        val oldActiveSource = settingsService.state.activeSource
+        val oldActiveSources = settingsService.state.activeSources
         val newSources = form.items
 
         val newSettings = Settings(
-            activeSource = if (newSources.map { it.id }.contains(oldActiveSource)) oldActiveSource else null,
+            activeSources = newSources.map { it.id }
+                .filter { oldActiveSources.contains(it) }
+                .toMutableSet(),
             sources = newSources
         )
 

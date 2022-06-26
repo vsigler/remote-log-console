@@ -8,19 +8,38 @@ class SettingsService: PersistentStateComponent<Settings> {
 
     var currentSettings : Settings = Settings()
 
+    val listeners = mutableListOf<(Settings) -> Unit>()
+
     override fun loadState(state: Settings) {
+        state.activeSources = state.activeSources
+            .filter { activeSource ->
+                state.sources.any { it.id == activeSource }
+            }
+            .toMutableSet()
+
         this.currentSettings = state
+        listeners.forEach { it.invoke(state) }
     }
 
     override fun getState(): Settings = currentSettings
 
-    fun getActiveSource() : LogSource? {
-        val localState = state
-        val active = localState.activeSource?:localState.sources.firstOrNull()?.id
-        localState.activeSource = active
+    fun getActiveSources() = state.activeSources.mapNotNull { getSource(it) }
 
-        return localState.sources
-            .firstOrNull { it.id == active }
+    fun activateSource(id: String) {
+        state.activeSources.add(id)
+    }
+
+    fun deactivateSource(id: String) {
+        state.activeSources.removeAll { it == id }
+    }
+
+    fun getSource(id: String) : LogSource? {
+        return state.sources
+            .firstOrNull { it.id == id }
+    }
+
+    fun addChangeListener(callback: (Settings) -> Unit) {
+        listeners.add(callback)
     }
 
 }

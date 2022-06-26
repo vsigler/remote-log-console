@@ -2,17 +2,29 @@ package cz.sigler.remotelog.actions
 
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.project.DumbAwareAction
-import cz.sigler.remotelog.services.LogProjectService
+import cz.sigler.remotelog.services.DataKeys
+import cz.sigler.remotelog.services.LogRetrieverService
 
 class StopAction : DumbAwareAction() {
 
-    override fun update(e: AnActionEvent) {
-        val service = e.project!!.getService(LogProjectService::class.java)
-        e.presentation.isEnabled = service.isRunning()
+    override fun actionPerformed(e: AnActionEvent) {
+        e.project?.let {
+            val service = it.getService(LogRetrieverService::class.java)
+
+            DataKeys.LOG_SOURCE_ID.getData(e.dataContext)?.let { src ->
+                service.stop(src)
+            }
+        }
     }
 
-    override fun actionPerformed(e: AnActionEvent) {
-        val service = e.project!!.getService(LogProjectService::class.java)
-        service.stop()
+    override fun update(e: AnActionEvent) {
+        e.project?.let {
+            val service = it.getService(LogRetrieverService::class.java)
+
+            DataKeys.LOG_SOURCE_ID.getData(e.dataContext)?.let { src ->
+                e.presentation.isEnabled = service.isRunning(src)
+            }
+        }
     }
+
 }
