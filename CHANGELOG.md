@@ -2,6 +2,6 @@
 
 # Remote log console changelog
 
-## [0.1.0]
+## [1.0.0]
 ### Added
 - Initial release

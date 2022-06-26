@@ -6,7 +6,7 @@
 
 <!-- Plugin description -->
 Simple plugin that adds a tool window with a console that can be connected to any simple logging service that provides
-plaintext logs over TCP. For example, may embedded devices provide logs in such a way when set to debug mode.
+plaintext logs over TCP. For example, many embedded devices provide logs in such a way when set to debug mode.
 <!-- Plugin description end -->
 
 ## Installation
