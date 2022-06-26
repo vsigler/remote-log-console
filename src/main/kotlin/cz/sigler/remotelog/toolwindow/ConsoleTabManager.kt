@@ -9,7 +9,7 @@ import cz.sigler.remotelog.config.LogSource
 import cz.sigler.remotelog.config.Settings
 import cz.sigler.remotelog.config.SettingsService
 import cz.sigler.remotelog.services.DataKeys
-import cz.sigler.remotelog.services.LogService
+import cz.sigler.remotelog.services.LogRetrieverService
 
 class ConsoleTabManager(
     private val project: Project,
@@ -20,7 +20,7 @@ class ConsoleTabManager(
         private val ICON_STATE_KEY = Key.create<IconState>("RemoteLogConsole_IconState")
     }
 
-    private val logService = project.getService(LogService::class.java)
+    private val logService = project.getService(LogRetrieverService::class.java)
     private val settingsService = project.getService(SettingsService::class.java)
     private val contentFactory = ContentFactory.SERVICE.getInstance()
 
@@ -42,9 +42,9 @@ class ConsoleTabManager(
             contentManager.removeContent(emptyContent, false)
         }
 
-        val toolWindow = ToolWindow(project, logSource.id)
-        Disposer.register(this, toolWindow)
-        val content = contentFactory.createContent(toolWindow.content, logSource.name, false).apply {
+        val consoleTab = ConsoleTab(project, logSource.id)
+        Disposer.register(this, consoleTab)
+        val content = contentFactory.createContent(consoleTab.content, logSource.name, false).apply {
             putUserData(com.intellij.openapi.wm.ToolWindow.SHOW_CONTENT_ICON, true)
             putUserData(LOG_SOURCE_KEY, logSource.id)
             putUserData(ICON_STATE_KEY, IconState())

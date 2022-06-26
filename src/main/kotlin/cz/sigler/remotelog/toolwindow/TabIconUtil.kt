@@ -29,14 +29,6 @@ object TabIconUtil {
                     if (running) {
                         drawIndicator(g2d, Color.GREEN, x + iconWidth - iSize, y + iconHeight - iSize)
                     }
-//                    g2d.color = color
-//                    val shape = Ellipse2D.Double(
-//                        (x + iconWidth - iSize).toDouble(),
-//                        (y + iconHeight - iSize).toDouble(), iSize.toDouble(), iSize.toDouble()
-//                    )
-//                    g2d.fill(shape)
-//                    g2d.color = ColorUtil.withAlpha(Color.BLACK, .40)
-//                    g2d.draw(shape)
                 } finally {
                     g2d.dispose()
                 }

@@ -12,14 +12,14 @@ import java.util.function.BiConsumer
 
 private const val BUF_SIZE = 1024
 
-class RemoteLogRetriever(
+class LogRetriever(
     private val address: InetSocketAddress,
     private val reconnectAttempts: Int,
     private val consumer: BiConsumer<String, ConsoleViewContentType>
     ) : Runnable {
 
     companion object {
-        val log = Logger.getInstance(RemoteLogRetriever::class.java)
+        val log = Logger.getInstance(LogRetriever::class.java)
     }
 
     private val buffer = ByteArray(BUF_SIZE)

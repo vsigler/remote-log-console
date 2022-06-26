@@ -1,57 +1,61 @@
 package cz.sigler.remotelog.actions
 
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.AnActionHolder
-import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.JBPopupFactory
-import com.intellij.openapi.ui.popup.ListPopup
-import com.intellij.ui.awt.RelativePoint
+import com.intellij.ui.LayeredIcon
+import com.intellij.ui.popup.PopupState
 import com.intellij.util.ui.JBUI
 import cz.sigler.remotelog.MyBundle
 import cz.sigler.remotelog.config.RemoteLogConfigurable
 import cz.sigler.remotelog.config.SettingsService
 import cz.sigler.remotelog.toolwindow.ConsoleTabManager
-import java.awt.Point
+import cz.sigler.remotelog.toolwindow.TabIconUtil
 import java.awt.event.MouseEvent
 
 class SelectSourceAction(
     private val project: Project,
-    private val tabManager: ConsoleTabManager) : DumbAwareAction(AllIcons.General.Add) {
+    private val tabManager: ConsoleTabManager) : DumbAwareAction() {
 
-    private val settingsService = project.getService(SettingsService::class.java)
+    private val myPopupState = PopupState.forPopupMenu()
+
+    init {
+        with (templatePresentation) {
+            icon = LayeredIcon(AllIcons.General.Add, AllIcons.General.Dropdown)
+            text = MyBundle.message("addConsole")
+        }
+    }
 
     override fun actionPerformed(e: AnActionEvent) {
-        val popupPoint: RelativePoint? = getPreferredPopupPoint(e)
-        val popup: ListPopup = createPopup(e.dataContext)
-        if (popupPoint != null) {
-            popup.show(popupPoint)
-        } else {
-            popup.showInFocusCenter()
+        if (myPopupState.isRecentlyHidden) {
+            return
         }
-    }
 
-    private fun getPreferredPopupPoint(e: AnActionEvent): RelativePoint? {
         val inputEvent = e.inputEvent
+        val popupMenu = ActionManager.getInstance().createActionPopupMenu(ActionPlaces.TOOLWINDOW_POPUP, createActionGroup())
+        var x = 0
+        var y = 0
         if (inputEvent is MouseEvent) {
-            val comp = inputEvent.getComponent()
-            if (comp is AnActionHolder) {
-                return RelativePoint(comp.parent, Point(comp.x + JBUI.scale(3), comp.y + comp.height + JBUI.scale(3)))
-            }
+            val component = inputEvent.component
+            x = component.x + JBUI.scale(2)
+            y = component.y + component.height
         }
-        return null
+        myPopupState.prepareToShow(popupMenu.component)
+        popupMenu.component.show(inputEvent.component, x, y)
     }
 
-    private fun createPopup(dataContext: DataContext): ListPopup {
+    private fun createActionGroup(): DefaultActionGroup {
         val group = DefaultActionGroup()
+        val settingsService = project.getService(SettingsService::class.java)
         val activeSources = settingsService.state.activeSources
 
         settingsService.state.sources.forEach {
-            group.add(object: DumbAwareAction(it.toString()) {
+            group.add(object: DumbAwareAction(it.toString(), null, TabIconUtil.getTabIcon(running = false, newContent = false)) {
                 override fun actionPerformed(e: AnActionEvent) {
                     tabManager.addTab(it)
                 }
@@ -64,15 +68,13 @@ class SelectSourceAction(
             })
         }
         group.addSeparator()
-        group.add(object: DumbAwareAction(MyBundle.message("editLogSources")) {
+        group.add(object: DumbAwareAction(MyBundle.messagePointer("editLogSources"), AllIcons.General.Settings) {
             override fun actionPerformed(e: AnActionEvent) {
                 val configurable = RemoteLogConfigurable(project)
                 ShowSettingsUtil.getInstance().editConfigurable(project, configurable)
             }
         })
-        return JBPopupFactory.getInstance().createActionGroupPopup(
-            null, group, dataContext,
-            false, true, true, null, -1, null
-        )
+
+        return group
     }
 }

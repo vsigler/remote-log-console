@@ -10,7 +10,7 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.openapi.wm.ex.ToolWindowEx
 import cz.sigler.remotelog.actions.SelectSourceAction
 import cz.sigler.remotelog.config.SettingsService
-import cz.sigler.remotelog.services.LogService
+import cz.sigler.remotelog.services.LogRetrieverService
 
 class ToolWindowFactory : ToolWindowFactory, DumbAware {
 
@@ -21,7 +21,7 @@ class ToolWindowFactory : ToolWindowFactory, DumbAware {
      * @param toolWindow current tool window
      */
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        val service = project.getService(LogService::class.java)
+        val service = project.getService(LogRetrieverService::class.java)
         val toolWindowEx = toolWindow as ToolWindowEx
         val tabManager = ConsoleTabManager(project, toolWindow.contentManager)
         Disposer.register(service, tabManager)

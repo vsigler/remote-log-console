@@ -13,12 +13,12 @@ import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.util.ui.JBEmptyBorder
-import cz.sigler.remotelog.services.LogService
+import cz.sigler.remotelog.services.LogRetrieverService
 import java.awt.BorderLayout
 import javax.swing.JPanel
 
 
-class ToolWindow(val project: Project, val logSourceId: String) : Disposable {
+class ConsoleTab(val project: Project, val logSourceId: String) : Disposable {
     lateinit var content: JPanel
     private lateinit var toolbar: JPanel
     private lateinit var console: JPanel
@@ -47,7 +47,7 @@ class ToolWindow(val project: Project, val logSourceId: String) : Disposable {
     }
 
     override fun dispose() {
-        val service = project.getService(LogService::class.java)
+        val service = project.getService(LogRetrieverService::class.java)
         service.stop(logSourceId)
         console.removeAll()
     }

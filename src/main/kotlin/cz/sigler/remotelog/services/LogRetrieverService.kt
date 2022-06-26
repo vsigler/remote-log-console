@@ -13,14 +13,14 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 
 @Service
-class LogService(private val project: Project) : Disposable {
+class LogRetrieverService(private val project: Project) : Disposable {
 
     companion object {
-        val log = Logger.getInstance(LogService::class.java)
+        val log = Logger.getInstance(LogRetrieverService::class.java)
     }
 
     private val threadPool = Executors.newCachedThreadPool()
-    private val retrieverRegistry = ConcurrentHashMap<String, RemoteLogRetriever>()
+    private val retrieverRegistry = ConcurrentHashMap<String, LogRetriever>()
 
     private val listeners = mutableListOf<LogSourceStateListener>()
 
@@ -39,7 +39,7 @@ class LogService(private val project: Project) : Disposable {
             log.info("Starting log retriever.")
 
             val reconnectAttempts = if (source.reconnect) source.reconnectAttempts else 0
-            val retriever = RemoteLogRetriever(source.toAddress(), reconnectAttempts) { s, t ->
+            val retriever = LogRetriever(source.toAddress(), reconnectAttempts) { s, t ->
                 console.print(s, t)
                 ApplicationManager.getApplication().invokeLater {
                     listeners.forEach {

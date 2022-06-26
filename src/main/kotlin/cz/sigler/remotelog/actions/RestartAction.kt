@@ -5,12 +5,12 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.project.DumbAwareAction
 import cz.sigler.remotelog.services.DataKeys
-import cz.sigler.remotelog.services.LogService
+import cz.sigler.remotelog.services.LogRetrieverService
 
 class RestartAction : DumbAwareAction() {
     override fun actionPerformed(e: AnActionEvent) {
         e.project?.let {
-            val service = it.getService(LogService::class.java)
+            val service = it.getService(LogRetrieverService::class.java)
 
             val consoleView = PlatformDataKeys.CONTEXT_COMPONENT.getData(e.dataContext)
 
@@ -24,7 +24,7 @@ class RestartAction : DumbAwareAction() {
 
     override fun update(e: AnActionEvent) {
         e.project?.let {
-            val service = it.getService(LogService::class.java)
+            val service = it.getService(LogRetrieverService::class.java)
 
             DataKeys.LOG_SOURCE_ID.getData(e.dataContext)?.let { src ->
                 e.presentation.isVisible = service.isRunning(src)
