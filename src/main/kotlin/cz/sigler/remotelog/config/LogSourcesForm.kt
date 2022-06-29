@@ -51,7 +51,7 @@ class LogSourcesForm(initialItems: List<LogSource>) {
                     itemEditor.isVisible = true
                 } else {
                     selectedItem = null
-                    itemEditor.isVisible = true
+                    itemEditor.isVisible = false
                 }
             }
         }

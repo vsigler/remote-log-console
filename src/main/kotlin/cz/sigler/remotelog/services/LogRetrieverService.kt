@@ -57,10 +57,9 @@ class LogRetrieverService(private val project: Project) : Disposable {
                     }
                     retriever.run()
                 } finally {
-                    retrieverRegistry.remove(source.id)
-                    ApplicationManager.getApplication().invokeLater {
-                        listeners.forEach {
-                            it.sourceStopped(source.id)
+                    retrieverRegistry.remove(source.id)?.let {
+                        ApplicationManager.getApplication().invokeLater {
+                            onSourceStopped(source.id)
                         }
                     }
                 }
@@ -77,7 +76,10 @@ class LogRetrieverService(private val project: Project) : Disposable {
     }
 
     fun stop(sourceId: String) {
-        retrieverRegistry[sourceId]?.stop()
+        retrieverRegistry.remove(sourceId)?.let{
+            it.stop()
+            onSourceStopped(sourceId)
+        }
     }
 
     fun isRunning(sourceId: String) : Boolean {
@@ -87,6 +89,12 @@ class LogRetrieverService(private val project: Project) : Disposable {
     override fun dispose() {
         retrieverRegistry.values.forEach { it.stop() }
         threadPool.shutdown()
+    }
+
+    private fun onSourceStopped(sourceId: String) {
+        listeners.forEach {
+            it.sourceStopped(sourceId)
+        }
     }
 
     private fun getSettingsService() = project.getService(SettingsService::class.java)
