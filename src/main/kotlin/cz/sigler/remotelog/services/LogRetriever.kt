@@ -2,6 +2,7 @@ package cz.sigler.remotelog.services
 
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.openapi.diagnostic.Logger
+import java.io.IOException
 import java.io.InputStream
 import java.net.InetSocketAddress
 import java.net.Socket
@@ -57,10 +58,10 @@ class LogRetriever(
     private fun runInternal() {
         try {
             socket = Socket()
-            socket?.connect(address, TIMEOUT)
-            log.info("Connected to $address")
-            consumerRef.get()?.accept("Log receiver connected to $address\n", ConsoleViewContentType.SYSTEM_OUTPUT)
             socket?.use {
+                socket?.connect(address, TIMEOUT)
+                log.info("Connected to $address")
+                consumerRef.get()?.accept("Log receiver connected to $address\n", ConsoleViewContentType.SYSTEM_OUTPUT)
                 it.getInputStream()?.use {
                     reconnectCounter = 0
                     var connected = true
@@ -69,8 +70,8 @@ class LogRetriever(
                     }
                 }
             }
-        } catch (e: SocketException) {
-            log.info("Could not connect to remote service", e)
+        } catch (e: IOException) {
+            log.warn("Connection error", e)
             consumerRef.get()?.accept("Connection error: $e\n", ConsoleViewContentType.SYSTEM_OUTPUT)
         }
     }

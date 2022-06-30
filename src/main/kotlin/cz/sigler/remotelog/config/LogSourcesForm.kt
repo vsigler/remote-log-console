@@ -9,7 +9,9 @@ import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.ui.CollectionListModel
 import com.intellij.util.ui.JBEmptyBorder
+import cz.sigler.remotelog.MyBundle
 import java.awt.BorderLayout
+import java.util.*
 import javax.swing.*
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
@@ -71,16 +73,29 @@ class LogSourcesForm(initialItems: List<LogSource>) {
         retriesSpinner.model.addChangeListener { updateFromEditor() }
 
         val toolbarActions = DefaultActionGroup()
-        toolbarActions.add(object: DumbAwareAction("Add Log Source", null, AllIcons.General.Add) {
+        toolbarActions.add(object: DumbAwareAction(MyBundle.message("addLogSource"), null, AllIcons.General.Add) {
             override fun actionPerformed(e: AnActionEvent) {
-                model.add(LogSource(name = "New Log Source"))
+                model.add(LogSource(name = MyBundle.message("newLogSource")))
                 sourceList.selectedIndex = items.size - 1
             }
         })
 
-        toolbarActions.add(object: DumbAwareAction("Discard Log Source", null, AllIcons.General.Remove) {
+        toolbarActions.add(object: DumbAwareAction(MyBundle.message("discardLogSource"), null, AllIcons.General.Remove) {
             override fun actionPerformed(e: AnActionEvent) {
                 model.remove(sourceList.selectedIndex)
+            }
+
+            override fun update(e: AnActionEvent) {
+                e.presentation.isEnabled = selectedItem != null
+            }
+        })
+
+        toolbarActions.add(object: DumbAwareAction(MyBundle.message("copyLogSource"), null, AllIcons.Actions.Copy) {
+            override fun actionPerformed(e: AnActionEvent) {
+                selectedItem?.let {
+                    model.add(it.copy(id = UUID.randomUUID().toString(), name = "${it.name} Copy"))
+                    sourceList.selectedIndex = items.size - 1
+                }
             }
 
             override fun update(e: AnActionEvent) {

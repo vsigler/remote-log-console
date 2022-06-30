@@ -5,6 +5,12 @@
 ## [Unreleased]
 
 ## [1.0.1]
+### Added
+- Copy log source
+### Fixed
+- Retry not working in some cases
+
+## [1.0.1]
 ### Fixed
 - Settings form no longer remaining visible when no source is selected
 - Fixed stop and reconnect hanging on retrying or timeouting connections
