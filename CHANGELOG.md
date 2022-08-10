@@ -4,7 +4,11 @@
 
 ## [Unreleased]
 
-## [1.0.1]
+## [1.0.3]
+### Added
+- IntelliJ platform 222.* compatibility
+
+## [1.0.2]
 ### Added
 - Copy log source
 ### Fixed

@@ -6,7 +6,7 @@ import java.net.SocketException
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-class TestLogServer {
+class TestLogServer(private val port: Int) {
     val messages = loadMessages()
     val random = Random()
 
@@ -19,7 +19,7 @@ class TestLogServer {
     }
 
     fun start() {
-        ServerSocket(41234).use {
+        ServerSocket(port).use {
             while (true) {
                 Thread(ServerThread(it.accept())).start()
             }
@@ -51,6 +51,14 @@ object Server {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        TestLogServer().start()
+        TestLogServer(41234).start()
+    }
+}
+
+object Server2 {
+
+    @JvmStatic
+    fun main(args: Array<String>) {
+        TestLogServer(41235).start()
     }
 }
