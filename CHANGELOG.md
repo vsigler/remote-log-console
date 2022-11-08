@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+## [1.0.4]
+### Added
+- IntelliJ platform 223.* compatibility
+- socket keepalive
+
 ## [1.0.3]
 ### Added
 - IntelliJ platform 222.* compatibility

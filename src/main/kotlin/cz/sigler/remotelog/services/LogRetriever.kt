@@ -59,7 +59,8 @@ class LogRetriever(
         try {
             socket = Socket()
             socket?.use {
-                socket?.connect(address, TIMEOUT)
+                it.keepAlive = true
+                it.connect(address, TIMEOUT)
                 log.info("Connected to $address")
                 consumerRef.get()?.accept("Log receiver connected to $address\n", ConsoleViewContentType.SYSTEM_OUTPUT)
                 it.getInputStream()?.use {
