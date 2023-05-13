@@ -22,7 +22,7 @@ class ConsoleTabManager(
 
     private val logService = project.getService(LogRetrieverService::class.java)
     private val settingsService = project.getService(SettingsService::class.java)
-    private val contentFactory = ContentFactory.SERVICE.getInstance()
+    private val contentFactory = ContentFactory.getInstance()
 
     private val emptyContent: Content = contentFactory.createContent(NoActiveTabsView(project).content, "", false)
 
