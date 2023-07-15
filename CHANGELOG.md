@@ -5,9 +5,12 @@
 ## [Unreleased]
 
 ## [1.1.0]
+### Fixed
+- Unnecessary auto-closing of the tool window when opening first active source tab or closing the last
 ### Added
-- Internal refactor
 - IntelliJ platform 232.* compatibility
+### Changed
+- Internal refactor of connection handling, hopefully improving stability
 
 ## [1.0.5]
 ### Added
