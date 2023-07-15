@@ -9,7 +9,7 @@ class RemoteLogConfigurable(project: Project): Configurable {
     private val settingsService = project.getService(SettingsService::class.java)
 
     private val initialList : List<LogSource> = settingsService.state.sources
-    lateinit var form : LogSourcesForm
+    private lateinit var form : LogSourcesForm
 
     override fun createComponent(): JComponent? {
         form = LogSourcesForm(initialList)

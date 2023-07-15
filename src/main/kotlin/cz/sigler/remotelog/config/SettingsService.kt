@@ -6,9 +6,9 @@ import com.intellij.openapi.components.*
 @State(name = "RemoteLogConsole", storages = [Storage("RemoteLogConsole.xml", roamingType = RoamingType.DISABLED)])
 class SettingsService: PersistentStateComponent<Settings> {
 
-    var currentSettings : Settings = Settings()
+    private var currentSettings : Settings = Settings()
 
-    val listeners = mutableListOf<(Settings) -> Unit>()
+    private val listeners = mutableListOf<(Settings) -> Unit>()
 
     override fun loadState(state: Settings) {
         state.activeSources = state.activeSources
