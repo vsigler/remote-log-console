@@ -2,15 +2,19 @@ package cz.sigler.remotelog.services
 
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.openapi.diagnostic.Logger
+import io.ktor.utils.io.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.time.delay
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.io.InputStream
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.net.SocketException
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicReference
-import java.util.function.BiConsumer
+import java.net.SocketTimeoutException
+import java.time.Duration
+import kotlin.coroutines.coroutineContext
 
 private const val BUF_SIZE = 1024
 private const val TIMEOUT = 5000
@@ -18,34 +22,45 @@ private const val TIMEOUT = 5000
 class LogRetriever(
     private val address: InetSocketAddress,
     private val reconnectAttempts: Int,
-    consumer: BiConsumer<String, ConsoleViewContentType>
-    ) : Runnable {
+    private val consumer: suspend (String, ConsoleViewContentType) -> Unit
+    ) {
 
     companion object {
         val log = Logger.getInstance(LogRetriever::class.java)
     }
 
-    private val consumerRef = AtomicReference(consumer)
-
     private val buffer = ByteArray(BUF_SIZE)
-    private var stopLatch = CountDownLatch(1)
     private var reconnectCounter = 0
+    
+    internal var dispatcher = Dispatchers.IO
 
     @Volatile
     private var socket: Socket? = null
 
-    override fun run() {
+    suspend fun run() {
         if (address.isUnresolved) {
-            consumerRef.get()?.accept("Could not resolve host ${address.hostName}\n", ConsoleViewContentType.SYSTEM_OUTPUT)
+            consumeMessage("Could not resolve host ${address.hostName}\n", ConsoleViewContentType.SYSTEM_OUTPUT)
             return
         }
 
-        while (shouldRun()) {
-            runInternal()
-            if (shouldRun()) {
-                consumerRef.get()?.accept("Reconnecting... Attempt ${reconnectCounter + 1} of $reconnectAttempts after 10 seconds...\n", ConsoleViewContentType.SYSTEM_OUTPUT)
-                stopLatch.await(10, TimeUnit.SECONDS)
-                reconnectCounter++
+        withContext(dispatcher) {
+            try {
+                while (shouldRun()) {
+                    runInternal()
+                    if (shouldRun()) {
+                        consumeMessage("Reconnecting... Attempt ${reconnectCounter + 1} of $reconnectAttempts after 10 seconds...\n", ConsoleViewContentType.SYSTEM_OUTPUT)
+                        delay(Duration.ofSeconds(10))
+                        reconnectCounter++
+                    }
+                }
+            } catch (ce: CancellationException) {
+                if (log.isDebugEnabled) {
+                    log.debug("Retriever cancelled.", ce)
+                } else {
+                    log.info("Retriever cancelled.")
+                }
+            } catch (e: Exception) {
+                log.error("Unexpected exception", e)
             }
         }
 
@@ -53,16 +68,17 @@ class LogRetriever(
         log.info("Remote log receiver terminated.")
     }
 
-    private fun shouldRun() = reconnectCounter < reconnectAttempts && stopLatch.count > 0
+    private suspend fun shouldRun() = reconnectCounter < reconnectAttempts && coroutineContext.isActive
 
-    private fun runInternal() {
+    private suspend fun runInternal() {
         try {
             socket = Socket()
             socket?.use {
                 it.keepAlive = true
+                it.soTimeout = TIMEOUT*2
                 it.connect(address, TIMEOUT)
                 log.info("Connected to $address")
-                consumerRef.get()?.accept("Log receiver connected to $address\n", ConsoleViewContentType.SYSTEM_OUTPUT)
+                consumeMessage("Log receiver connected to $address\n", ConsoleViewContentType.SYSTEM_OUTPUT)
                 it.getInputStream()?.use {
                     reconnectCounter = 0
                     var connected = true
@@ -73,17 +89,11 @@ class LogRetriever(
             }
         } catch (e: IOException) {
             log.warn("Connection error", e)
-            consumerRef.get()?.accept("Connection error: $e\n", ConsoleViewContentType.SYSTEM_OUTPUT)
+            consumeMessage("Connection error: $e\n", ConsoleViewContentType.SYSTEM_OUTPUT)
         }
     }
 
-    fun stop() {
-        consumerRef.set(null)
-        stopLatch.countDown()
-        socket?.close()
-    }
-
-    private fun readAndOutput(it: InputStream) : Boolean {
+    private suspend fun readAndOutput(it: InputStream) : Boolean {
         try {
             val bytesRead = it.read(buffer, 0, 1024)
 
@@ -91,18 +101,24 @@ class LogRetriever(
                 outputDisconnected()
                 return false
             } else if (bytesRead > 0) {
-                consumerRef.get()?.accept(String(buffer, 0, bytesRead), ConsoleViewContentType.NORMAL_OUTPUT)
+                consumeMessage(String(buffer, 0, bytesRead))
             }
         } catch (e: SocketException) {
             log.info("Connection terminated", e)
             outputDisconnected()
             return false
+        } catch (ste: SocketTimeoutException) {
+            log.debug("Read timed out on socket", ste)
         }
 
         return true
     }
+    
+    private suspend fun consumeMessage(msg: String, contentType: ConsoleViewContentType = ConsoleViewContentType.NORMAL_OUTPUT) {
+        consumer(msg, contentType)
+    }
 
-    private fun outputDisconnected() {
-        consumerRef.get()?.accept("Remote log disconnected.\n", ConsoleViewContentType.SYSTEM_OUTPUT)
+    private suspend fun outputDisconnected() {
+        consumeMessage("Remote log disconnected.\n", ConsoleViewContentType.SYSTEM_OUTPUT)
     }
 }

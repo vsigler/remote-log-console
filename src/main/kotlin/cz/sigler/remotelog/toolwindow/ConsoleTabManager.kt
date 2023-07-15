@@ -37,10 +37,7 @@ class ConsoleTabManager(
     }
 
     fun addTab(logSource: LogSource) {
-        if (contentManager.contentCount == 1) {
-            // remove empty content placeholder if needed
-            contentManager.removeContent(emptyContent, false)
-        }
+        val removeEmptyContent = contentManager.contentCount == 1
 
         val consoleTab = ConsoleTab(project, logSource.id)
         Disposer.register(this, consoleTab)
@@ -54,6 +51,13 @@ class ConsoleTabManager(
         settingsService.activateSource(logSource.id)
         contentManager.addContent(content)
         contentManager.setSelectedContent(content)
+
+        if (removeEmptyContent) {
+            // Remove empty content placeholder if needed,
+            // but do it after a new tab was added, otherwise idea auto-closes
+            // the tool window.
+            contentManager.removeContent(emptyContent, false)
+        }
     }
 
     fun configurationChanged(settings: Settings) {
@@ -66,11 +70,13 @@ class ConsoleTabManager(
         }
     }
 
-    override fun contentRemoved(event: ContentManagerEvent) {
+    // This fires before the content is removed, to prevent a moment when
+    // there are no contents, which would close the tool window.
+    override fun contentRemoveQuery(event: ContentManagerEvent) {
         event.content.getUserData(LOG_SOURCE_KEY)?.let {
             settingsService.deactivateSource(it)
             logService.stop(it)
-            maybeDisplayEmptyContent()
+            maybeDisplayEmptyContent(true)
         }
     }
 
@@ -103,8 +109,13 @@ class ConsoleTabManager(
         }
     }
 
-    private fun maybeDisplayEmptyContent() {
-        if (contentManager.contentCount == 0) {
+    private fun maybeDisplayEmptyContent(preRemove: Boolean = false) {
+        var count = contentManager.contentCount
+        if (preRemove) {
+            count -= 1
+        }
+
+        if (count == 0) {
             contentManager.addContent(emptyContent)
         }
     }

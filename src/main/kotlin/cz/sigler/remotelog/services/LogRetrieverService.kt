@@ -2,15 +2,13 @@ package cz.sigler.remotelog.services
 
 import com.intellij.execution.ui.ConsoleView
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import cz.sigler.remotelog.config.LogSource
 import cz.sigler.remotelog.config.SettingsService
 import cz.sigler.remotelog.toolwindow.LogSourceStateListener
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executors
+import kotlinx.coroutines.*
 
 @Service
 class LogRetrieverService(private val project: Project) : Disposable {
@@ -19,8 +17,8 @@ class LogRetrieverService(private val project: Project) : Disposable {
         val log = Logger.getInstance(LogRetrieverService::class.java)
     }
 
-    private val threadPool = Executors.newCachedThreadPool()
-    private val retrieverRegistry = ConcurrentHashMap<String, LogRetriever>()
+    private val scope = MainScope()
+    private val retrieverRegistry: MutableMap<String, Job> = mutableMapOf()
 
     private val listeners = mutableListOf<LogSourceStateListener>()
 
@@ -40,27 +38,23 @@ class LogRetrieverService(private val project: Project) : Disposable {
 
             val reconnectAttempts = if (source.reconnect) source.reconnectAttempts else 0
             val retriever = LogRetriever(source.toAddress(), reconnectAttempts) { s, t ->
-                console.print(s, t)
-                ApplicationManager.getApplication().invokeLater {
+                withContext(Dispatchers.Main) {
+                    console.print(s, t)
                     listeners.forEach {
                         it.newContentAdded(source.id)
                     }
                 }
             }
-            retrieverRegistry[source.id] = retriever
-            threadPool.submit {
-                try {
-                    ApplicationManager.getApplication().invokeLater {
-                        listeners.forEach {
-                            it.sourceStarted(source.id)
-                        }
-                    }
-                    retriever.run()
-                } finally {
+
+            retrieverRegistry[source.id] = scope.launch {
+                listeners.forEach {
+                    it.sourceStarted(source.id)
+                }
+                retriever.run()
+            }.also {
+                it.invokeOnCompletion {
                     retrieverRegistry.remove(source.id)?.let {
-                        ApplicationManager.getApplication().invokeLater {
-                            onSourceStopped(source.id)
-                        }
+                        onSourceStopped(source.id)
                     }
                 }
             }
@@ -77,7 +71,7 @@ class LogRetrieverService(private val project: Project) : Disposable {
 
     fun stop(sourceId: String) {
         retrieverRegistry.remove(sourceId)?.let{
-            it.stop()
+            it.cancel("Requested retriever stop")
             onSourceStopped(sourceId)
         }
     }
@@ -87,8 +81,8 @@ class LogRetrieverService(private val project: Project) : Disposable {
     }
 
     override fun dispose() {
-        retrieverRegistry.values.forEach { it.stop() }
-        threadPool.shutdown()
+        retrieverRegistry.values.forEach { it.cancel() }
+        scope.cancel("Service disposing")
     }
 
     private fun onSourceStopped(sourceId: String) {

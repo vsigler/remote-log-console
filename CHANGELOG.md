@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+## [1.1.0]
+### Added
+- Internal refactor
+- IntelliJ platform 232.* compatibility
+
 ## [1.0.5]
 ### Added
 - IntelliJ platform 231.* compatibility
