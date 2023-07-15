@@ -31,8 +31,6 @@ class LogRetriever(
 
     private val buffer = ByteArray(BUF_SIZE)
     private var reconnectCounter = 0
-    
-    internal var dispatcher = Dispatchers.IO
 
     @Volatile
     private var socket: Socket? = null
@@ -43,7 +41,7 @@ class LogRetriever(
             return
         }
 
-        withContext(dispatcher) {
+        withContext(Dispatchers.IO) {
             try {
                 while (shouldRun()) {
                     runInternal()
@@ -95,7 +93,7 @@ class LogRetriever(
 
     private suspend fun readAndOutput(it: InputStream) : Boolean {
         try {
-            val bytesRead = withContext(dispatcher) {
+            val bytesRead = withContext(Dispatchers.IO) {
                 it.read(buffer, 0, 1024)
             }
 
