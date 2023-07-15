@@ -79,11 +79,11 @@ class LogRetriever(
                 it.connect(address, TIMEOUT)
                 log.info("Connected to $address")
                 consumeMessage("Log receiver connected to $address\n", ConsoleViewContentType.SYSTEM_OUTPUT)
-                it.getInputStream()?.use {
+                it.getInputStream()?.use { stream ->
                     reconnectCounter = 0
                     var connected = true
                     while (connected) {
-                        connected = readAndOutput(it)
+                        connected = readAndOutput(stream)
                     }
                 }
             }
@@ -95,7 +95,9 @@ class LogRetriever(
 
     private suspend fun readAndOutput(it: InputStream) : Boolean {
         try {
-            val bytesRead = it.read(buffer, 0, 1024)
+            val bytesRead = withContext(dispatcher) {
+                it.read(buffer, 0, 1024)
+            }
 
             if (bytesRead == -1) {
                 outputDisconnected()

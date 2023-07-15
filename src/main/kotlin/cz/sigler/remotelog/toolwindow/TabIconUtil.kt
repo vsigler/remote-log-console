@@ -2,19 +2,20 @@ package cz.sigler.remotelog.toolwindow
 
 import com.intellij.icons.AllIcons
 import com.intellij.ui.ColorUtil
+import com.intellij.ui.JBColor
 import com.intellij.ui.LayeredIcon
 import com.intellij.ui.scale.JBUIScale
 import com.intellij.util.ui.GraphicsUtil
-import java.awt.Color
 import java.awt.Component
 import java.awt.Graphics
 import java.awt.Graphics2D
 import java.awt.geom.Ellipse2D
 import javax.swing.Icon
 
+const val EMPTY_ICON_HEIGHT = 16
+const val EMPTY_ICON_WIDTH = 16
+
 object TabIconUtil {
-    val emptyIconHeight = 16
-    val emptyIconWidth = 16
 
     fun getTabIcon(base: Icon? = AllIcons.Debugger.Console, running: Boolean, newContent: Boolean): Icon {
         return LayeredIcon(base, object : Icon {
@@ -24,10 +25,10 @@ object TabIconUtil {
                 try {
                     GraphicsUtil.setupAAPainting(g2d)
                     if (newContent) {
-                        drawIndicator(g2d, Color.YELLOW, x + iconWidth - iSize, y)
+                        drawIndicator(g2d, JBColor.YELLOW, x + iconWidth - iSize, y)
                     }
                     if (running) {
-                        drawIndicator(g2d, Color.GREEN, x + iconWidth - iSize, y + iconHeight - iSize)
+                        drawIndicator(g2d, JBColor.GREEN, x + iconWidth - iSize, y + iconHeight - iSize)
                     }
                 } finally {
                     g2d.dispose()
@@ -35,14 +36,14 @@ object TabIconUtil {
             }
 
             override fun getIconWidth(): Int {
-                return base?.iconWidth ?: emptyIconWidth
+                return base?.iconWidth ?: EMPTY_ICON_WIDTH
             }
 
             override fun getIconHeight(): Int {
-                return base?.iconHeight ?: emptyIconHeight
+                return base?.iconHeight ?: EMPTY_ICON_HEIGHT
             }
 
-            private fun drawIndicator(g2d: Graphics2D, color: Color, x: Int, y: Int) {
+            private fun drawIndicator(g2d: Graphics2D, color: JBColor, x: Int, y: Int) {
                 val iSize = JBUIScale.scale(4)
                 g2d.color = color
                 val shape = Ellipse2D.Double(
@@ -50,7 +51,7 @@ object TabIconUtil {
                     y.toDouble(), iSize.toDouble(), iSize.toDouble()
                 )
                 g2d.fill(shape)
-                g2d.color = ColorUtil.withAlpha(Color.BLACK, .40)
+                g2d.color = ColorUtil.withAlpha(JBColor.BLACK, .40)
                 g2d.draw(shape)
             }
         })

@@ -7,7 +7,6 @@ import com.intellij.ui.LayeredIcon
 import cz.sigler.remotelog.MyBundle
 import cz.sigler.remotelog.config.RemoteLogConfigurable
 import javax.swing.JButton
-import javax.swing.JLabel
 import javax.swing.JPanel
 import javax.swing.JTextPane
 import javax.swing.text.SimpleAttributeSet
@@ -15,7 +14,6 @@ import javax.swing.text.SimpleAttributeSet
 class NoActiveTabsView(private val project: Project) {
     lateinit var content: JPanel
     lateinit var editLogSourcesButton: JButton
-    lateinit var addTabIcon: JLabel
     lateinit var textPane: JTextPane
 
     init {

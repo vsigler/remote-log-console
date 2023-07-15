@@ -18,11 +18,11 @@ import java.awt.BorderLayout
 import javax.swing.JPanel
 
 
-class ConsoleTab(val project: Project, val logSourceId: String) : Disposable {
+class ConsoleTab(val project: Project, private val logSourceId: String) : Disposable {
     lateinit var content: JPanel
     private lateinit var toolbar: JPanel
     private lateinit var console: JPanel
-    var consoleView: ConsoleView = LogConsoleViewImpl(project, logSourceId)
+    private val consoleView: ConsoleView = LogConsoleViewImpl(project, logSourceId)
 
     init {
         val actionManager = ActionManager.getInstance()
