@@ -22,7 +22,7 @@ class StopAction : DumbAwareAction() {
             val service = it.getService(LogRetrieverService::class.java)
 
             DataKeys.LOG_SOURCE_ID.getData(e.dataContext)?.let { src ->
-                e.presentation.isEnabled = service.isRunning(src)
+                e.presentation.isEnabled = service.isRunning(src) && !service.isPending(src)
             }
         }
     }

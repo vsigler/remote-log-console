@@ -29,11 +29,8 @@ class LogRetriever(
         val log = Logger.getInstance(LogRetriever::class.java)
     }
 
-    private val buffer = ByteArray(BUF_SIZE)
-    private var reconnectCounter = 0
-
     @Volatile
-    private var socket: Socket? = null
+    private var reconnectCounter = 0
 
     suspend fun run() {
         if (address.isUnresolved) {
@@ -57,21 +54,20 @@ class LogRetriever(
                 } else {
                     log.info("Retriever cancelled.")
                 }
-            } catch (e: Exception) {
+            }
+            catch (e: Exception) {
                 log.error("Unexpected exception", e)
             }
-        }
 
-        socket = null
-        log.info("Remote log receiver terminated.")
+            log.info("Remote log receiver terminated.")
+        }
     }
 
     private suspend fun shouldRun() = reconnectCounter < reconnectAttempts && coroutineContext.isActive
 
     private suspend fun runInternal() {
         try {
-            socket = Socket()
-            socket?.use {
+            Socket().use {
                 it.keepAlive = true
                 it.soTimeout = TIMEOUT*2
                 it.connect(address, TIMEOUT)
@@ -93,25 +89,32 @@ class LogRetriever(
 
     private suspend fun readAndOutput(it: InputStream) : Boolean {
         try {
-            val bytesRead = withContext(Dispatchers.IO) {
-                it.read(buffer, 0, 1024)
+            val (bytesRead, buffer) = withContext(Dispatchers.IO) {
+                val buffer = ByteArray(BUF_SIZE)
+                val bytesRead = it.read(buffer, 0, 1024)
+                Pair(bytesRead, buffer)
             }
 
             if (bytesRead == -1) {
                 outputDisconnected()
-                return false
             } else if (bytesRead > 0) {
                 consumeMessage(String(buffer, 0, bytesRead))
+                return true
             }
-        } catch (e: SocketException) {
-            log.info("Connection terminated", e)
-            outputDisconnected()
-            return false
         } catch (ste: SocketTimeoutException) {
             log.debug("Read timed out on socket", ste)
+            // no data does not mean having to reconnect
+            return true
+        } catch (e: Exception) {
+            when (e) {
+                is SocketException -> log.info("Connection terminated", e)
+                is CancellationException -> log.info("Connection cancelled", e)
+                else -> log.error("Unexpected exception", e)
+            }
+            outputDisconnected()
         }
 
-        return true
+        return false
     }
     
     private suspend fun consumeMessage(msg: String, contentType: ConsoleViewContentType = ConsoleViewContentType.NORMAL_OUTPUT) {

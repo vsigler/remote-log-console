@@ -46,7 +46,9 @@ class SelectSourceAction(
             y = component.y + component.height
         }
         myPopupState.prepareToShow(popupMenu.component)
-        popupMenu.component.show(inputEvent.component, x, y)
+        inputEvent?.component?.let {
+            popupMenu.component.show(it, x, y)
+        }
     }
 
     private fun createActionGroup(): DefaultActionGroup {

@@ -28,6 +28,7 @@ class RestartAction : DumbAwareAction() {
 
             DataKeys.LOG_SOURCE_ID.getData(e.dataContext)?.let { src ->
                 e.presentation.isVisible = service.isRunning(src)
+                e.presentation.isEnabled = !service.isPending(src)
             }
         }
     }

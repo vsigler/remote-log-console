@@ -17,7 +17,7 @@ const val EMPTY_ICON_WIDTH = 16
 
 object TabIconUtil {
 
-    fun getTabIcon(base: Icon? = AllIcons.Debugger.Console, running: Boolean, newContent: Boolean): Icon {
+    fun getTabIcon(base: Icon = AllIcons.Debugger.Console, running: Boolean, newContent: Boolean): Icon {
         return LayeredIcon(base, object : Icon {
             override fun paintIcon(c: Component, g: Graphics, x: Int, y: Int) {
                 val iSize = JBUIScale.scale(4)
@@ -36,7 +36,7 @@ object TabIconUtil {
             }
 
             override fun getIconWidth(): Int {
-                return base?.iconWidth ?: EMPTY_ICON_WIDTH
+                return base.iconWidth ?: EMPTY_ICON_WIDTH
             }
 
             override fun getIconHeight(): Int {

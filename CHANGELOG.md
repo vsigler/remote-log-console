@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+## [1.1.1]
+### Fixed
+- Connection termination issues
+- UI bugs
+### Added
+- IntelliJ platform 233.* compatibility
+
 ## [1.1.0]
 ### Fixed
 - Unnecessary auto-closing of the tool window when opening first active source tab or closing the last
