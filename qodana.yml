@@ -3,8 +3,7 @@
 
 version: 1.0
 linter: jetbrains/qodana-jvm-community:latest
-# this fails when using java 17
-projectJDK: 21
+projectJDK: 17
 profile:
   name: qodana.recommended
 exclude:
