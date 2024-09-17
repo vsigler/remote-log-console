@@ -2,7 +2,7 @@ package cz.sigler.remotelog.config
 
 import com.intellij.openapi.components.*
 
-@Service
+@Service(Service.Level.PROJECT)
 @State(name = "RemoteLogConsole", storages = [Storage("RemoteLogConsole.xml", roamingType = RoamingType.DISABLED)])
 class SettingsService: PersistentStateComponent<Settings> {
 
