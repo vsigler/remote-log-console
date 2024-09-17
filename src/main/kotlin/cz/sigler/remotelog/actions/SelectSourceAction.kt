@@ -8,7 +8,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
-import com.intellij.ui.LayeredIcon.Companion.layeredIcon
+import com.intellij.ui.LayeredIcon
 import com.intellij.ui.popup.PopupState
 import com.intellij.util.ui.JBUI
 import cz.sigler.remotelog.MyBundle
@@ -26,7 +26,7 @@ class SelectSourceAction(
 
     init {
         with (templatePresentation) {
-            icon = layeredIcon(arrayOf(AllIcons.General.Add, AllIcons.General.Dropdown))
+            icon = LayeredIcon(AllIcons.General.Add, AllIcons.General.Dropdown)
             text = MyBundle.message("addConsole")
         }
     }
