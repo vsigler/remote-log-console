@@ -1,11 +1,10 @@
 package cz.sigler.remotelog.actions
 
 import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.project.DumbAwareAction
 import cz.sigler.remotelog.services.DataKeys
 import cz.sigler.remotelog.services.LogRetrieverService
 
-class StopAction : DumbAwareAction() {
+class StopAction : BaseAction() {
 
     override fun actionPerformed(e: AnActionEvent) {
         e.project?.let {

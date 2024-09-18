@@ -20,7 +20,7 @@ import java.awt.event.MouseEvent
 
 class SelectSourceAction(
     private val project: Project,
-    private val tabManager: ConsoleTabManager) : DumbAwareAction() {
+    private val tabManager: ConsoleTabManager) : BaseAction() {
 
     private val myPopupState = PopupState.forPopupMenu()
 

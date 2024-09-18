@@ -11,7 +11,7 @@ import cz.sigler.remotelog.config.SettingsService
 import cz.sigler.remotelog.toolwindow.LogSourceStateListener
 import kotlinx.coroutines.*
 
-@Service
+@Service(Service.Level.PROJECT)
 class LogRetrieverService(private val project: Project) : Disposable {
 
     companion object {

@@ -12,9 +12,6 @@ import java.awt.Graphics2D
 import java.awt.geom.Ellipse2D
 import javax.swing.Icon
 
-const val EMPTY_ICON_HEIGHT = 16
-const val EMPTY_ICON_WIDTH = 16
-
 object TabIconUtil {
 
     fun getTabIcon(base: Icon = AllIcons.Debugger.Console, running: Boolean, newContent: Boolean): Icon {
@@ -36,11 +33,11 @@ object TabIconUtil {
             }
 
             override fun getIconWidth(): Int {
-                return base.iconWidth ?: EMPTY_ICON_WIDTH
+                return base.iconWidth
             }
 
             override fun getIconHeight(): Int {
-                return base?.iconHeight ?: EMPTY_ICON_HEIGHT
+                return base.iconHeight
             }
 
             private fun drawIndicator(g2d: Graphics2D, color: JBColor, x: Int, y: Int) {

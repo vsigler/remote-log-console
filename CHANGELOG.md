@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [1.1.2]
+### Added
+- IntelliJ platform 242.* compatibility
+
 ## [1.1.1]
 ### Fixed
 - Connection termination issues
