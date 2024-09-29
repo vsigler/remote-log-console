@@ -3,6 +3,8 @@
 # Remote log console changelog
 
 ## [Unreleased]
+## Fixed
+- Fixed error in logs about deprecated ActionUpdateThread value
 
 ## [1.1.2]
 ### Added
