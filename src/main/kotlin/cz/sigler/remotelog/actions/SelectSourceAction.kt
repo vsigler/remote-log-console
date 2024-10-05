@@ -6,7 +6,6 @@ import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.options.ShowSettingsUtil
-import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.Project
 import com.intellij.ui.LayeredIcon
 import com.intellij.ui.popup.PopupState
@@ -17,10 +16,13 @@ import cz.sigler.remotelog.config.SettingsService
 import cz.sigler.remotelog.toolwindow.ConsoleTabManager
 import cz.sigler.remotelog.toolwindow.TabIconUtil
 import java.awt.event.MouseEvent
+import javax.swing.JComponent
 
 class SelectSourceAction(
     private val project: Project,
-    private val tabManager: ConsoleTabManager) : BaseAction() {
+    private val tabManager: ConsoleTabManager,
+    private val targetComponent: JComponent
+) : BaseAction() {
 
     private val myPopupState = PopupState.forPopupMenu()
 
@@ -38,6 +40,8 @@ class SelectSourceAction(
 
         val inputEvent = e.inputEvent
         val popupMenu = ActionManager.getInstance().createActionPopupMenu(ActionPlaces.TOOLWINDOW_POPUP, createActionGroup())
+        popupMenu.setTargetComponent(targetComponent)
+
         var x = 0
         var y = 0
         if (inputEvent is MouseEvent) {
@@ -57,7 +61,7 @@ class SelectSourceAction(
         val activeSources = settingsService.state.activeSources
 
         settingsService.state.sources.forEach {
-            group.add(object: DumbAwareAction(it.toString(), null, TabIconUtil.getTabIcon(running = false, newContent = false)) {
+            group.add(object: BaseAction(it.toString(), null, TabIconUtil.getTabIcon(running = false, newContent = false)) {
                 override fun actionPerformed(e: AnActionEvent) {
                     tabManager.addTab(it)
                 }
@@ -70,7 +74,7 @@ class SelectSourceAction(
             })
         }
         group.addSeparator()
-        group.add(object: DumbAwareAction(MyBundle.messagePointer("editLogSources"), AllIcons.General.Settings) {
+        group.add(object: BaseAction(MyBundle.messagePointer("editLogSources"), AllIcons.General.Settings) {
             override fun actionPerformed(e: AnActionEvent) {
                 val configurable = RemoteLogConfigurable(project)
                 ShowSettingsUtil.getInstance().editConfigurable(project, configurable)

@@ -26,7 +26,7 @@ class ToolWindowFactory : ToolWindowFactory, DumbAware {
         val tabManager = ConsoleTabManager(project, toolWindow.contentManager)
         Disposer.register(service, tabManager)
 
-        toolWindowEx.setTabActions(SelectSourceAction(project, tabManager))
+        toolWindowEx.setTabActions(SelectSourceAction(project, tabManager, toolWindow.component))
 
         val settingsService = project.getService(SettingsService::class.java)
         settingsService.addChangeListener {

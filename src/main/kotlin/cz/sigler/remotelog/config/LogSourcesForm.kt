@@ -6,10 +6,10 @@ import com.intellij.openapi.actionSystem.ActionToolbar
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl
-import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.ui.CollectionListModel
 import com.intellij.util.ui.JBEmptyBorder
 import cz.sigler.remotelog.MyBundle
+import cz.sigler.remotelog.actions.BaseAction
 import java.awt.BorderLayout
 import java.util.*
 import javax.swing.*
@@ -73,14 +73,14 @@ class LogSourcesForm(initialItems: List<LogSource>) {
         retriesSpinner.model.addChangeListener { updateFromEditor() }
 
         val toolbarActions = DefaultActionGroup()
-        toolbarActions.add(object: DumbAwareAction(MyBundle.message("addLogSource"), null, AllIcons.General.Add) {
+        toolbarActions.add(object: BaseAction(MyBundle.message("addLogSource"), null, AllIcons.General.Add) {
             override fun actionPerformed(e: AnActionEvent) {
                 model.add(LogSource(name = MyBundle.message("newLogSource")))
                 sourceList.selectedIndex = items.size - 1
             }
         })
 
-        toolbarActions.add(object: DumbAwareAction(MyBundle.message("discardLogSource"), null, AllIcons.General.Remove) {
+        toolbarActions.add(object: BaseAction(MyBundle.message("discardLogSource"), null, AllIcons.General.Remove) {
             override fun actionPerformed(e: AnActionEvent) {
                 model.remove(sourceList.selectedIndex)
             }
@@ -90,7 +90,7 @@ class LogSourcesForm(initialItems: List<LogSource>) {
             }
         })
 
-        toolbarActions.add(object: DumbAwareAction(MyBundle.message("copyLogSource"), null, AllIcons.Actions.Copy) {
+        toolbarActions.add(object: BaseAction(MyBundle.message("copyLogSource"), null, AllIcons.Actions.Copy) {
             override fun actionPerformed(e: AnActionEvent) {
                 selectedItem?.let {
                     model.add(it.copy(id = UUID.randomUUID().toString(), name = "${it.name} Copy"))

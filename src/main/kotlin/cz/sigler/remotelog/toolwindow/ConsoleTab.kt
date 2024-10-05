@@ -28,7 +28,7 @@ class ConsoleTab(val project: Project, private val logSourceId: String) : Dispos
         val actionManager = ActionManager.getInstance()
 
         val newGroup = DefaultActionGroup()
-        newGroup.add(actionManager.getAction("toolbar.console"))
+        newGroup.add(actionManager.getAction("cz.sigler.remotelogconsole.console.toolbar"))
         newGroup.addSeparator()
 
         newGroup.addAll(createConsoleActions(consoleView))
@@ -39,6 +39,9 @@ class ConsoleTab(val project: Project, private val logSourceId: String) : Dispos
         editorToolbar.isOpaque = false
         editorToolbar.border = JBEmptyBorder(0, 0, 0, 0)
         editorToolbar.targetComponent = consoleView.component
+
+        // Keeping for now to maintain compatibility with pre-2024.1 versions
+        // actionToolbar.layoutStrategy = ToolbarLayoutStrategy.AUTOLAYOUT_STRATEGY
         actionToolbar.setLayoutPolicy(ActionToolbar.AUTO_LAYOUT_POLICY)
 
         toolbar.add(editorToolbar.component, BorderLayout.CENTER)

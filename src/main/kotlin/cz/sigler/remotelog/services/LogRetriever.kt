@@ -2,6 +2,7 @@ package cz.sigler.remotelog.services
 
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.openapi.diagnostic.Logger
+import cz.sigler.remotelog.MyBundle
 import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
@@ -17,7 +18,8 @@ import java.time.Duration
 import kotlin.coroutines.coroutineContext
 
 private const val BUF_SIZE = 1024
-private const val TIMEOUT = 5000
+private const val CONNECT_TIMEOUT = 5000
+private const val READ_TIMEOUT = 1000
 
 class LogRetriever(
     private val address: InetSocketAddress,
@@ -34,7 +36,7 @@ class LogRetriever(
 
     suspend fun run() {
         if (address.isUnresolved) {
-            consumeMessage("Could not resolve host ${address.hostName}\n", ConsoleViewContentType.SYSTEM_OUTPUT)
+            consumeMessage("${ MyBundle.message("cannotReslveHost", address.hostName)}\n", ConsoleViewContentType.SYSTEM_OUTPUT)
             return
         }
 
@@ -43,7 +45,8 @@ class LogRetriever(
                 while (shouldRun()) {
                     runInternal()
                     if (shouldRun()) {
-                        consumeMessage("Reconnecting... Attempt ${reconnectCounter + 1} of $reconnectAttempts after 10 seconds...\n", ConsoleViewContentType.SYSTEM_OUTPUT)
+                        consumeMessage("${ MyBundle.message("reconnecting", reconnectCounter + 1, reconnectAttempts, 10) }\n",
+                            ConsoleViewContentType.SYSTEM_OUTPUT)
                         delay(Duration.ofSeconds(10))
                         reconnectCounter++
                     }
@@ -69,10 +72,10 @@ class LogRetriever(
         try {
             Socket().use {
                 it.keepAlive = true
-                it.soTimeout = TIMEOUT*2
-                it.connect(address, TIMEOUT)
+                it.soTimeout = READ_TIMEOUT
+                it.connect(address, CONNECT_TIMEOUT)
                 log.info("Connected to $address")
-                consumeMessage("Log receiver connected to $address\n", ConsoleViewContentType.SYSTEM_OUTPUT)
+                consumeMessage("${ MyBundle.message("logRetrieverConnected", address) }\n", ConsoleViewContentType.SYSTEM_OUTPUT)
                 it.getInputStream()?.use { stream ->
                     reconnectCounter = 0
                     var connected = true
@@ -83,7 +86,7 @@ class LogRetriever(
             }
         } catch (e: IOException) {
             log.warn("Connection error", e)
-            consumeMessage("Connection error: $e\n", ConsoleViewContentType.SYSTEM_OUTPUT)
+            consumeMessage("${ MyBundle.message("connectionError", e)}\n", ConsoleViewContentType.SYSTEM_OUTPUT)
         }
     }
 
@@ -95,9 +98,7 @@ class LogRetriever(
                 Pair(bytesRead, buffer)
             }
 
-            if (bytesRead == -1) {
-                outputDisconnected()
-            } else if (bytesRead > 0) {
+            if (bytesRead > 0) {
                 consumeMessage(String(buffer, 0, bytesRead))
                 return true
             }
@@ -111,7 +112,6 @@ class LogRetriever(
                 is CancellationException -> log.info("Connection cancelled", e)
                 else -> log.error("Unexpected exception", e)
             }
-            outputDisconnected()
         }
 
         return false
@@ -121,7 +121,4 @@ class LogRetriever(
         consumer(msg, contentType)
     }
 
-    private suspend fun outputDisconnected() {
-        consumeMessage("Remote log disconnected.\n", ConsoleViewContentType.SYSTEM_OUTPUT)
-    }
 }
