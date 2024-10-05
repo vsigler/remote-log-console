@@ -6,6 +6,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
+import cz.sigler.remotelog.MyBundle
 import cz.sigler.remotelog.config.LogSource
 import cz.sigler.remotelog.config.SettingsService
 import cz.sigler.remotelog.toolwindow.LogSourceStateListener
@@ -21,7 +22,7 @@ class LogRetrieverService(private val project: Project) : Disposable {
     private val scope = MainScope()
     private val retrieverRegistry: MutableMap<String, JobWrapper> = mutableMapOf()
 
-    private val listeners = mutableListOf<LogSourceStateListener>()
+    private val listeners = mutableListOf<LogSourceStateListener>(ActionUpdatingListener())
 
     fun addListener(listener: LogSourceStateListener) {
         listeners.add(listener)
@@ -78,14 +79,22 @@ class LogRetrieverService(private val project: Project) : Disposable {
             }
 
             val job = scope.launch {
-                listeners.forEach {
-                    onSourceStarted(source.id)
-                }
+                onSourceStarted(source.id)
                 retriever.run()
             }.also {
                 it.invokeOnCompletion {
-                    retrieverRegistry.remove(source.id)?.let {
-                        onSourceStopped(source.id)
+                    log.debug("Retriever job completed. ${source.id}")
+                    scope.launch {
+                        retrieverRegistry.remove(source.id)?.let {
+                            onSourceStopped(source.id)
+                        }
+                        printToConsole(
+                            source,
+                            console,
+                            "${ MyBundle.message("remoteLogDisconnected")}\n",
+                            ConsoleViewContentType.SYSTEM_OUTPUT
+                        )
+
                     }
                 }
             }
@@ -111,8 +120,8 @@ class LogRetrieverService(private val project: Project) : Disposable {
             } catch (e: Exception) {
                 log.error("Could not cancel retriever job, already cancelled or finished.")
             }
-            onSourceStopped(sourceId)
             retrieverRegistry.remove(sourceId)
+            onSourceStopped(sourceId)
         }
     }
 

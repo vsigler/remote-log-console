@@ -3,8 +3,12 @@
 # Remote log console changelog
 
 ## [Unreleased]
-## Fixed
+
+## [1.1.3]
+### Fixed
 - Fixed error in logs about deprecated ActionUpdateThread value
+- Fixed start/restart/stop buttons refresh
+- Fixed "disconnected" message that sometimes did not appear
 
 ## [1.1.2]
 ### Added

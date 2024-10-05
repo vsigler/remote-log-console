@@ -16,10 +16,13 @@ import cz.sigler.remotelog.config.SettingsService
 import cz.sigler.remotelog.toolwindow.ConsoleTabManager
 import cz.sigler.remotelog.toolwindow.TabIconUtil
 import java.awt.event.MouseEvent
+import javax.swing.JComponent
 
 class SelectSourceAction(
     private val project: Project,
-    private val tabManager: ConsoleTabManager) : BaseAction() {
+    private val tabManager: ConsoleTabManager,
+    private val targetComponent: JComponent
+) : BaseAction() {
 
     private val myPopupState = PopupState.forPopupMenu()
 
@@ -37,6 +40,8 @@ class SelectSourceAction(
 
         val inputEvent = e.inputEvent
         val popupMenu = ActionManager.getInstance().createActionPopupMenu(ActionPlaces.TOOLWINDOW_POPUP, createActionGroup())
+        popupMenu.setTargetComponent(targetComponent)
+
         var x = 0
         var y = 0
         if (inputEvent is MouseEvent) {

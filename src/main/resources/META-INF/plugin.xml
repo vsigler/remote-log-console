@@ -19,18 +19,18 @@
     </extensions>
 
     <actions>
-        <group id="toolbar.console" text="Grep Panel">
-            <action id="start.console"
+        <group id="cz.sigler.remotelogconsole.console.toolbar" text="Console Actions">
+            <action id="cz.sigler.remotelogconsole.console.start"
                     class="cz.sigler.remotelog.actions.StartAction"
                     icon="AllIcons.Actions.Execute"
                     text="Start"
             />
-            <action id="restart.console"
+            <action id="cz.sigler.remotelogconsole.console.restart"
                     class="cz.sigler.remotelog.actions.RestartAction"
                     icon="AllIcons.Actions.Restart"
                     text="Restart"
             />
-            <action id="stop.console"
+            <action id="cz.sigler.remotelogconsole.console.stop"
                     class="cz.sigler.remotelog.actions.StopAction"
                     icon="AllIcons.Actions.Suspend"
                     text="Stop"
