@@ -5,7 +5,6 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionToolbar
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl
 import com.intellij.ui.CollectionListModel
 import com.intellij.util.ui.JBEmptyBorder
 import cz.sigler.remotelog.MyBundle
@@ -29,12 +28,12 @@ class LogSourcesForm(initialItems: List<LogSource>) {
 
     private val model : CollectionListModel<LogSource>
     private var selectedItem : LogSource? = null
-    val items : MutableList<LogSource>
+
+    // Create a deep copy of the original list, so that we do not change
+    // the original and can compare for differences.
+    val items = initialItems.map { it.copy() }.toMutableList()
 
     init {
-        // Create a deep copy of the original list, so that we do not change
-        // the original and can compare for differences.
-        items = initialItems.map { it.copy() }.toMutableList()
         model = CollectionListModel(items, true)
         sourceList.model = model
         itemEditor.isVisible = false
@@ -104,10 +103,12 @@ class LogSourcesForm(initialItems: List<LogSource>) {
         })
 
         val actionManager = ActionManager.getInstance()
-        val actionToolbar = actionManager.createActionToolbar("ConsolePanel", toolbarActions, true) as ActionToolbarImpl
+        val actionToolbar = actionManager.createActionToolbar("ConsolePanel", toolbarActions, true)
+        with(actionToolbar.component) {
+            isOpaque = false
+            border = JBEmptyBorder(0, 0, 0, 0)
+        }
         actionToolbar.setReservePlaceAutoPopupIcon(false)
-        actionToolbar.isOpaque = false
-        actionToolbar.border = JBEmptyBorder(0, 0, 0, 0)
         actionToolbar.targetComponent = sourceList
         actionToolbar.layoutPolicy = ActionToolbar.AUTO_LAYOUT_POLICY
 

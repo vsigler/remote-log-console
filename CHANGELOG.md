@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [1.1.5]
+### Added
+- IntelliJ platform 252.* compatibility
+
+## [1.1.4]
+### Added
+- IntelliJ platform 251.* compatibility
+
 ## [1.1.3]
 ### Fixed
 - Fixed error in logs about deprecated ActionUpdateThread value

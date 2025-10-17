@@ -7,7 +7,6 @@ import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionToolbar
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.DefaultActionGroup
-import com.intellij.openapi.actionSystem.impl.ActionToolbarImpl
 import com.intellij.openapi.editor.actions.ScrollToTheEndToolbarAction
 import com.intellij.openapi.editor.actions.ToggleUseSoftWrapsToolbarAction
 import com.intellij.openapi.project.Project
@@ -33,16 +32,17 @@ class ConsoleTab(val project: Project, private val logSourceId: String) : Dispos
 
         newGroup.addAll(createConsoleActions(consoleView))
 
-        val actionToolbar = actionManager.createActionToolbar("ConsolePanel", newGroup, false)
-        val editorToolbar = actionToolbar as ActionToolbarImpl
+        val editorToolbar = actionManager.createActionToolbar("ConsolePanel", newGroup, false)
+        with(editorToolbar.component) {
+            isOpaque = false
+            border = JBEmptyBorder(0, 0, 0, 0)
+        }
         editorToolbar.setReservePlaceAutoPopupIcon(false)
-        editorToolbar.isOpaque = false
-        editorToolbar.border = JBEmptyBorder(0, 0, 0, 0)
         editorToolbar.targetComponent = consoleView.component
 
         // Keeping for now to maintain compatibility with pre-2024.1 versions
         // actionToolbar.layoutStrategy = ToolbarLayoutStrategy.AUTOLAYOUT_STRATEGY
-        actionToolbar.setLayoutPolicy(ActionToolbar.AUTO_LAYOUT_POLICY)
+        editorToolbar.setLayoutPolicy(ActionToolbar.AUTO_LAYOUT_POLICY)
 
         toolbar.add(editorToolbar.component, BorderLayout.CENTER)
         console.add(consoleView.component, BorderLayout.CENTER)
