@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [1.1.7]
+### Added
+- IntelliJ platform 261.* compatibility
+
+## [1.1.6]
+### Added
+- IntelliJ platform 253.* compatibility
+
 ## [1.1.5]
 ### Added
 - IntelliJ platform 252.* compatibility
